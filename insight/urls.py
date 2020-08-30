@@ -24,7 +24,8 @@ from rest_framework import routers, serializers, viewsets
 class UserSerializer(serializers.HyperlinkedModelSerializer):
   class Meta:
     model = User
-    fields = ['url', 'username', 'email', 'is_staff', 'first_name']
+    fields = ['id', 'url', 'username', 'email',
+              'is_staff', 'first_name', 'last_name']
 
 # ViewSets define the view behavior.
 
@@ -44,3 +45,4 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
 ]
+
