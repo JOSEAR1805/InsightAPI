@@ -27,7 +27,8 @@ DEBUG = True
 
 CORS_ORIGIN_ALLOW_ALL = True
 
-ALLOWED_HOSTS = ['*', 'locahost:3000', 'https://insight-app-git-test.josear1805.vercel.app']
+ALLOWED_HOSTS = ['*', 'locahost:3000',
+                 'https://insight-app-git-test.josear1805.vercel.app']
 
 CORS_ORIGIN_WHITELIST = (
     'http://localhost:3000',
@@ -47,8 +48,8 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'corsheaders',
-    
-    'app',
+
+    'countries',
 ]
 
 MIDDLEWARE = [
@@ -89,12 +90,24 @@ WSGI_APPLICATION = 'insight.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'db_insight',
-        'USER': 'developer',
-        'PASSWORD': 'Secret',
+        'NAME': 'dev_insight',
+        'USER': 'root',
+        'PASSWORD': 'root',
         'HOST': '127.0.0.1',
+        'PORT': '8889',
     }
 }
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.mysql',
+#         'NAME': 'db_insight',
+#         'USER': 'developer',
+#         'PASSWORD': 'Secret',
+#         'HOST': '127.0.0.1',
+#     }
+# }
 
 
 # Password validation
