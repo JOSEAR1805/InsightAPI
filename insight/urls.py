@@ -18,8 +18,9 @@ from django.urls import path, include
 from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 from countries.views import CountryViewSet
-from category.views import CategoryViewSet
-from setting_searchs.views import SettingSearchViewSet
+from categories.views import CategoryViewSet
+from search_settings.views import SearchSettingViewSet
+from words_search_settings.views import WordsSearchSettingViewSet
 
 # Serializers define the API representation.
 
@@ -43,7 +44,8 @@ router = routers.DefaultRouter()
 router.register(r'users', UserViewSet)
 router.register(r'countries', CountryViewSet)
 router.register(r'categories', CategoryViewSet)
-router.register(r'settings_searchs', SettingSearchViewSet)
+router.register(r'search_settings', SearchSettingViewSet)
+router.register(r'words_search_settings', WordsSearchSettingViewSet)
 
 
 urlpatterns = [
