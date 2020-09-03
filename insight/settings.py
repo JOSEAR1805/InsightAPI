@@ -50,6 +50,8 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'countries',
+    'category',
+    'setting_searchs',
 ]
 
 MIDDLEWARE = [
