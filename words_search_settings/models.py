@@ -19,4 +19,4 @@ class WordsSearchSetting(models.Model):
 class WordsSearchSettingSerializer(serializers.ModelSerializer):
   class Meta:
     model = WordsSearchSetting
-    fields = ['search_setting', 'word']
+    fields = ['id', 'search_setting', 'word']

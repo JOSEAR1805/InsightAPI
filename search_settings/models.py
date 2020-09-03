@@ -23,4 +23,4 @@ class SearchSetting(models.Model):
 class SearchSettingSerializer(serializers.ModelSerializer):
   class Meta:
     model = SearchSetting
-    fields = ['country', 'category', 'name', 'description', 'url']
+    fields = ['id', 'country', 'category', 'name', 'description', 'url']
