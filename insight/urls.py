@@ -20,7 +20,7 @@ from rest_framework import routers, serializers, viewsets
 from countries.views import CountryViewSet
 from categories.views import CategoryViewSet
 from search_settings.views import SearchSettingViewSet
-from words_search_settings.views import WordsSearchSettingViewSet
+# from words_search_settings.views import WordsSearchSettingViewSet
 
 # Serializers define the API representation.
 
@@ -45,7 +45,7 @@ router.register(r'users', UserViewSet)
 router.register(r'countries', CountryViewSet)
 router.register(r'categories', CategoryViewSet)
 router.register(r'search_settings', SearchSettingViewSet)
-router.register(r'words_search_settings', WordsSearchSettingViewSet)
+# router.register(r'words_search_settings', WordsSearchSettingViewSet)
 
 
 urlpatterns = [

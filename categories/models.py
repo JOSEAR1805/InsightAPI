@@ -11,9 +11,8 @@ class Category(models.Model):
   created = models.DateTimeField(auto_now_add=True)
   modified = models.DateTimeField(auto_now=True)
 
-  # class Meta:
-  #   app_label = 'categories'
-	# 	db_table = 'insight_category'
+  class Meta:
+    db_table = 'category_category'
 
 
 class CategorySerializer(serializers.ModelSerializer):

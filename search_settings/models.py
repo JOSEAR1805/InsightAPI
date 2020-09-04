@@ -1,12 +1,12 @@
 from django.db import models
 from rest_framework import serializers
-from countries.models import Country
-from categories.models import Category
+from countries.models import Country, CountrySerializer
+from categories.models import Category, CategorySerializer
 
 # Create your models here.
 
 
-class SearchSetting(models.Model):
+class SearchSettings(models.Model):
   country = models.ForeignKey(Country, on_delete=models.CASCADE)
   category = models.ForeignKey(Category, on_delete=models.CASCADE)
   name = models.CharField(max_length=255)
@@ -15,12 +15,16 @@ class SearchSetting(models.Model):
   created = models.DateTimeField(auto_now_add=True)
   modified = models.DateTimeField(auto_now=True)
 
-  # class Meta:
-  #   app_label = 'search_settings'
-	# 	db_table = 'insight_search_setting'
+  class Meta:
+    db_table = 'setting_searchs_settingsearch'
 
 
 class SearchSettingSerializer(serializers.ModelSerializer):
+
+  category = CategorySerializer(many=False)
+
+  country = CountrySerializer(many=False)
+
   class Meta:
-    model = SearchSetting
+    model = SearchSettings
     fields = ['id', 'country', 'category', 'name', 'description', 'url']
