@@ -9,9 +9,6 @@ class Country(models.Model):
   created = models.DateTimeField(auto_now_add=True)
   modified = models.DateTimeField(auto_now=True)
 
-  class Meta:
-    db_table = 'countries_country'
-
 
 class CountrySerializer(serializers.HyperlinkedModelSerializer):
 

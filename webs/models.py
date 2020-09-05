@@ -5,19 +5,18 @@ from countries.models import Country
 # Create your models here.
 
 
-class Category(models.Model):
+class Web(models.Model):
   country = models.ForeignKey(Country, on_delete=models.CASCADE)
   name = models.CharField(max_length=255)
+  url = models.CharField(max_length=255)
+  comments = models.CharField(max_length=255)
   created = models.DateTimeField(auto_now_add=True)
   modified = models.DateTimeField(auto_now=True)
 
-  class Meta:
-    db_table = 'category_category'
 
-
-class CategorySerializer(serializers.ModelSerializer):
-  # country = serializers.StringRelatedField(many=False)
+class WebSerializer(serializers.ModelSerializer):
+  # country = CountrySerializer(many=False)
 
   class Meta:
-    model = Category
-    fields = ['id', 'name', 'country']
+    model = Web
+    fields = ['id', 'country', 'name', 'url', 'comments']

@@ -50,7 +50,8 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'countries',
-    'categories',
+    'webs',
+    'profiles',
     'search_settings',
 ]
 
@@ -89,26 +90,26 @@ WSGI_APPLICATION = 'insight.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'dev_insight',
-        'USER': 'root',
-        'PASSWORD': 'root',
-        'HOST': '127.0.0.1',
-        'PORT': '8889',
-    }
-}
-
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
-#         'NAME': 'db_insight',
-#         'USER': 'developer',
-#         'PASSWORD': 'Secret',
+#         'NAME': 'dev_insight',
+#         'USER': 'root',
+#         'PASSWORD': 'root',
 #         'HOST': '127.0.0.1',
+#         'PORT': '8889',
 #     }
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'db_insight',
+        'USER': 'developer',
+        'PASSWORD': 'Secret',
+        'HOST': '127.0.0.1',
+    }
+}
 
 
 # Password validation
