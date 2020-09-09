@@ -21,6 +21,7 @@ from countries.views import CountryViewSet
 from webs.views import WebViewSet
 from profiles.views import ProfileViewSet
 from search_settings.views import SearchSettingViewSet
+from tenders.views import TenderViewSet
 
 # Serializers define the API representation.
 
@@ -46,6 +47,7 @@ router.register(r'countries', CountryViewSet)
 router.register(r'webs', WebViewSet)
 router.register(r'profiles', ProfileViewSet)
 router.register(r'search_settings', SearchSettingViewSet)
+router.register(r'tenders', TenderViewSet)
 
 
 urlpatterns = [
