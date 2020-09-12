@@ -14,6 +14,7 @@ class Tender(models.Model):
   code = models.CharField(max_length=255, blank=True)
   place_of_execution = models.CharField(max_length=255, blank=True)
   awarning_authority = models.CharField(max_length=255, blank=True)
+  link = models.CharField(max_length=255)
 
   publication_date = models.DateField(blank=True)
   closing_date = models.DateField(blank=True)
@@ -28,4 +29,4 @@ class TenderSerializer(serializers.ModelSerializer):
   class Meta:
     model = Tender
     fields = ['id', 'country', 'profile', 'description', 'code', 'place_of_execution',
-              'awarning_authority', 'publication_date', 'closing_date', 'dates']
+              'awarning_authority', 'link', 'publication_date', 'closing_date', 'dates']
