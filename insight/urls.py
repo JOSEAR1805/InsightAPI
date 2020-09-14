@@ -66,7 +66,7 @@ class UserViewSet(viewsets.ModelViewSet):
     user_auth = self.queryset.filter(email=email).get()
 
     if user_auth.password == password:
-      token = Token.objects.create(user=user_auth)
+      token, created = Token.objects.get_or_create(user=user_auth)
 
     # if user.check_password(password):
 
