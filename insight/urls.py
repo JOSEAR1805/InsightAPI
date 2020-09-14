@@ -17,11 +17,22 @@ from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
+from django.core import serializers as serializers_django
+
 from countries.views import CountryViewSet
 from webs.views import WebViewSet
 from profiles.views import ProfileViewSet
 from search_settings.views import SearchSettingViewSet
 from tenders.views import TenderViewSet
+from auth_user.views import AuthUserViewSet
+
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
+from django.http import HttpResponse
+
+from rest_framework.authtoken.models import Token
+
 
 # Serializers define the API representation.
 
@@ -30,7 +41,15 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
   class Meta:
     model = User
     fields = ['id', 'url', 'username', 'email',
-              'is_staff', 'first_name', 'last_name']
+              'is_staff', 'first_name', 'last_name', 'password']
+    extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+      password = validated_data.pop('password')
+      user = User(**validated_data)
+      user.set_password(password)
+      user.save()
+      return user
 
 # ViewSets define the view behavior.
 
@@ -38,6 +57,27 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 class UserViewSet(viewsets.ModelViewSet):
   queryset = User.objects.all()
   serializer_class = UserSerializer
+
+  @action(methods=['post'], detail=False, url_path='login', url_name='login')
+  def login(self, request, pk=None):
+
+    email = request.data['email']
+    password = request.data['password']
+    user_auth = self.queryset.filter(email=email).get()
+
+    if user_auth.password == password:
+      token = Token.objects.create(user=user_auth)
+
+      user_json = {
+          'id': user_auth.id,
+          'is_staff': user_auth.is_staff,
+          'last_name': user_auth.last_name,
+          'first_name': user_auth.first_name,
+          'token': token.key,
+      }
+      return Response(user_json)
+    else:
+      return Response('ERROR CON LOS DATOS', status=status.HTTP_400_BAD_REQUEST)
 
 
 # Routers provide an easy way of automatically determining the URL conf.
@@ -53,5 +93,5 @@ router.register(r'tenders', TenderViewSet)
 urlpatterns = [
     path('', include(router.urls)),
     path('admin/', admin.site.urls),
-    path('api-auth/', include('rest_framework.urls', namespace='rest_framework'))
+    path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
 ]
