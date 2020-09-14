@@ -1,6 +1,8 @@
 import scrapy
 from tenders.models import Tender
 from profiles.models import Profile
+from webs.models import Web
+from search_settings.models import SearchSettings
 import datetime
 
 
@@ -41,28 +43,38 @@ class RdsEmpleosSpiders(scrapy.Spider):
     dates = response.xpath(
         '//ul[contains(@class, "listService")]//div[@class="listWrpService featured-wrap"]//ul[@class="featureInfo innerfeat"]/li[2]/text()').getall()
 
-    profiles = Profile.objects.all()
-    for item_profile in profiles:
-      for item in titles:
-        words_searchs = item_profile.search_parameters.upper().strip().split(',')
-        words_not_searchs = item_profile.discard_parameters.upper().strip().split(',')
+    get_webs = Web.objects.all().filter(
+        url='https://rds-empleos.hn/plazas/category/17')
 
-        word_key_in = any([words_search in titles[titles.index(
-            item)].upper() for words_search in words_searchs])
+    for item_get_webs in get_webs:
+      get_search_settins = SearchSettings.objects.all().filter(
+          country_id=item_get_webs.country_id)
 
-        if word_key_in:
-          word_key_not_in = any([words_not_search in titles[titles.index(
-              item)].upper() for words_not_search in words_not_searchs])
+      for item_search_settings in get_search_settins:
+        profiles = Profile.objects.all().filter(
+            id=item_search_settings.profile_id)
 
-          if word_key_not_in:
-            print('*************--- NOT SAVE ---*************')
-          else:
-            print('*************--- SAVE ---*************')
-            split_date = dates[titles.index(item)].rstrip().split('-')
-            dates_save = f"{split_date[0]} - {split_date[1]}"
-            link = f"https://rds-empleos.hn/plazas/category/17/{links_webs[titles.index(item)]}"
-            code = f"rds_empleados-{titles.index(item)}-{datetime.datetime.now()}"
+        for item_profile in profiles:
+          for item in titles:
+            words_searchs = item_profile.search_parameters.upper().strip().split(',')
+            words_not_searchs = item_profile.discard_parameters.upper().strip().split(',')
 
-            tenders_save = Tender(
-                country_id=1, profile_id=item_profile.id, description=titles[titles.index(item)], code=code, link=link, place_of_execution=places[titles.index(item)].rstrip(), awarning_authority=companies[titles.index(item)], dates=dates_save)
-            tenders_save.save()
+            word_key_in = any([words_search in titles[titles.index(
+                item)].upper() for words_search in words_searchs])
+
+            if word_key_in:
+              word_key_not_in = any([words_not_search in titles[titles.index(
+                  item)].upper() for words_not_search in words_not_searchs])
+
+              if word_key_not_in:
+                print('*************--- NOT SAVE ---*************')
+              else:
+                print('*************--- SAVE ---*************')
+                split_date = dates[titles.index(item)].rstrip().split('-')
+                dates_save = f"{split_date[0]} - {split_date[1]}"
+                link = f"https://rds-empleos.hn/plazas/category/17/{links_webs[titles.index(item)]}"
+                code = f"rds_empleados-{titles.index(item)}-{datetime.datetime.now()}"
+
+                tenders_save = Tender(
+                    country_id=item_get_webs.country_id, profile_id=item_profile.id, description=titles[titles.index(item)], code=code, link=link, place_of_execution=places[titles.index(item)].rstrip(), awarning_authority=companies[titles.index(item)], dates=dates_save)
+                tenders_save.save()
