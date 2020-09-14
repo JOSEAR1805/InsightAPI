@@ -1,5 +1,6 @@
 import scrapy
 from tenders.models import Tender
+from profiles.models import Profile
 
 
 class UndpSpiders(scrapy.Spider):
@@ -20,6 +21,9 @@ class UndpSpiders(scrapy.Spider):
     descriptions = response.xpath(
         '//table[@class="standard cellborder"]//tr[@valign="top"]/td[4]/a/text()').getall()
 
+    links_webs = response.xpath(
+        '//table[@class="standard cellborder"]//tr[@valign="top"]/td[4]/a/@href').getall()
+
     places = response.xpath(
         '//table[@class="standard cellborder"]//tr[@valign="top"]/td[6]/text()').getall()
 
@@ -32,26 +36,30 @@ class UndpSpiders(scrapy.Spider):
     dates_deadline = response.xpath(
         '//table[@class="standard cellborder"]//tr[@valign="top"]/td[8]/nobr/text()').getall()
 
-    items = []
-    for item in titles:
+    profiles = Profile.objects.all()
+    for item_profile in profiles:
+      for item in descriptions:
+        words_searchs = item_profile.search_parameters.upper().strip().split(',')
+        words_not_searchs = item_profile.discard_parameters.upper().strip().split(',')
 
-      print('*' * 10)
-      print('\n\n')
+        word_key_in = any([words_search in descriptions[descriptions.index(
+            item)].upper() for words_search in words_searchs])
 
-      dates_save = f"{dates_posteds[titles.index(item)]} - {dates_deadline[titles.index(item)]}"
-      tenders_save = Tender(
-          country_id=1, profile_id=1, description=descriptions[titles.index(item)], code=titles[titles.index(item)], place_of_execution=places[titles.index(item)].rstrip(), awarning_authority=companies[titles.index(item)], dates=dates_save)
-      tenders_save.save()
+        if word_key_in:
+          word_key_not_in = any([words_not_search in descriptions[descriptions.index(
+              item)].upper() for words_not_search in words_not_searchs])
 
-    print('\n\n')
-    print('*' * 10)
+          print(words_not_searchs, '*******---', word_key_not_in)
+          if word_key_not_in:
+            print('*************--- NOT SAVE ---*************')
+          else:
+            print('*************--- SAVE ---*************')
+            print('--*************-')
+            print('*' * 10)
+            print('\n\n')
+            dates_save = f"{dates_posteds[descriptions.index(item)]} - {dates_deadline[descriptions.index(item)]}"
+            link = f"https://procurement-notices.undp.org/{links_webs[descriptions.index(item)]}"
 
-    # if titles[titles.index(item)] and companies[titles.index(item)] and descriptions[titles.index(item)]:
-    #   items.append({
-    #       'title': titles[titles.index(item)],
-    #       'company': companies[titles.index(item)],
-    #       'descriptions': descriptions[titles.index(item)],
-    #   })
-
-    # print(items)
-    # yield items
+            tenders_save = Tender(
+                country_id=1, profile_id=1, description=descriptions[descriptions.index(item)], code=titles[descriptions.index(item)], link=link, place_of_execution=places[descriptions.index(item)].rstrip(), awarning_authority=companies[descriptions.index(item)], dates=dates_save)
+            tenders_save.save()

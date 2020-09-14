@@ -68,6 +68,12 @@ class UserViewSet(viewsets.ModelViewSet):
     if user_auth.password == password:
       token = Token.objects.create(user=user_auth)
 
+    # if user.check_password(password):
+
+    #     # Success Code
+    # else:
+    #     # Error Code
+
       user_json = {
           'id': user_auth.id,
           'is_staff': user_auth.is_staff,

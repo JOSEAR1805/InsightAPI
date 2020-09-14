@@ -3,7 +3,7 @@ from tenders.models import Tender
 
 
 class WorlBankSpiders(scrapy.Spider):
-  name = 'undp_spiders'
+  name = 'worl_bank_spiders'
   start_urls = [
       'https://procurement-notices.undp.org/'
   ]
