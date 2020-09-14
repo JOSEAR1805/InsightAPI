@@ -64,5 +64,5 @@ class RdsEmpleosSpiders(scrapy.Spider):
             code = f"rds_empleados-{titles.index(item)}-{datetime.datetime.now()}"
 
             tenders_save = Tender(
-                country_id=1, profile_id=1, description=titles[titles.index(item)], code=code, link=link, place_of_execution=places[titles.index(item)].rstrip(), awarning_authority=companies[titles.index(item)], dates=dates_save)
+                country_id=1, profile_id=item_profile.id, description=titles[titles.index(item)], code=code, link=link, place_of_execution=places[titles.index(item)].rstrip(), awarning_authority=companies[titles.index(item)], dates=dates_save)
             tenders_save.save()
