@@ -5,21 +5,13 @@ from webs.models import Web
 from search_settings.models import SearchSettings
 import datetime
 
-
-# Titulos = //ul[contains(@class, "listService")]//div[@class="listWrpService featured-wrap"]//h3/a/text()
-# Empresa = //ul[contains(@class, "listService")]//div[@class="listWrpService featured-wrap"]//p[not(contains(@class , "para"))]/text()
-# Descripcion //ul[contains(@class, "listService")]//div[@class="listWrpService featured-wrap"]//p[@class="para"]/text()
-# Lugar = //ul[contains(@class, "listService")]//div[@class="listWrpService featured-wrap"]//ul[@class="featureInfo innerfeat"]/li[0]/text()
-# Fecha = //ul[contains(@class, "listService")]//div[@class="listWrpService featured-wrap"]//ul[@class="featureInfo innerfeat"]/li[1]/text()
-
-
-class BcieSpiders(scrapy.Spider):
-  name = 'bcie_spiders'
+class BciesSpiders(scrapy.Spider):
+  name = 'bcies_spiders'
   start_urls = [
       'https://adquisiciones.bcie.org/avisos-de-adquisicion'
   ]
   custom_settings = {
-      'FEED_URI': 'bcie_spiders.json',
+      'FEED_URI': 'bcies_spiders.json',
       'FEED_FORMAT': 'json'
   }
 
@@ -42,7 +34,7 @@ class BcieSpiders(scrapy.Spider):
 
     dates2 = response.xpath(
         '//table[@id="customtables"]//tbody/tr/td[5]/text()').getall()
-  
+
    
     get_webs = Web.objects.all().filter(
         url='https://adquisiciones.bcie.org/avisos-de-adquisicion')
@@ -71,8 +63,8 @@ class BcieSpiders(scrapy.Spider):
                 print('*************--- NOT SAVE ---*************')
               else:
                 print('*************--- SAVE ---*************')
-                dates_save = f"{dates1[titles.index(item)].rstrip()} - {dates2[titles.index(item)].rstrip()}"
-                link = f"https://adquisiciones.bcie.org/avisos-de-adquisicion/{links_webs[titles.index(item)]}"
+                dates_save = f'{dates1[titles.index(item)].rstrip()} - {dates2[titles.index(item)].rstrip()}'
+                link = f'{links_webs[titles.index(item)]}'
 
                 tenders_save = Tender(
                     country_id=item_get_webs.country_id, profile_id=item_profile.id, description=titles[titles.index(item)], code=codes[titles.index(item)], link=link, place_of_execution=places[titles.index(item)].rstrip(), dates=dates_save)
