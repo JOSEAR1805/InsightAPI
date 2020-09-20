@@ -15,7 +15,7 @@ class Tender(models.Model):
   place_of_execution = models.CharField(max_length=255, blank=True)
   awarning_authority = models.CharField(max_length=255, blank=True)
   link = models.CharField(max_length=255, blank=True)
-  tender_viewed = models.CharField(max_length=50, blank=True)
+  tender_viewed = models.BooleanField(default=False)
 
   publication_date = models.DateField(blank=True)
   closing_date = models.DateField(blank=True)
