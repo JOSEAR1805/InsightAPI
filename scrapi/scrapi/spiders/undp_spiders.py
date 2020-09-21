@@ -2,6 +2,7 @@ import scrapy
 from tenders.models import Tender
 from scrapy.mail import MailSender
 from profiles.models import Profile
+from django.contrib.auth.models import User
 from webs.models import Web
 from search_settings.models import SearchSettings
 
@@ -44,6 +45,8 @@ class UndpSpiders(scrapy.Spider):
 
         get_webs = Web.objects.all().filter(
             url='https://procurement-notices.undp.org/')
+
+        print(len(get_webs), '*' * 10)
 
         for item_get_webs in get_webs:
             get_search_settins = SearchSettings.objects.all().filter(

@@ -2,7 +2,7 @@ import scrapy
 from tenders.models import Tender
 from profiles.models import Profile
 from scrapy.mail import MailSender
-
+from django.contrib.auth.models import User
 from webs.models import Web
 from search_settings.models import SearchSettings
 import datetime
