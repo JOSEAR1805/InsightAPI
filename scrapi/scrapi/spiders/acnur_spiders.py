@@ -66,10 +66,9 @@ class AcnurSpiders(scrapy.Spider):
                                     '*************--- SAVE ---*************')
                                 dates_save = f"{dates_webs[descriptions.index(item)].rstrip()}"
                                 link = f"{links_webs[descriptions.index(item)]}"
-                                code = f"acnur-{descriptions.index(item)}-{datetime.datetime.now()}"
 
                                 tenders_save = Tender(
-                                    country_id=item_get_webs.country_id, profile_id=item_profile.id, description=descriptions[descriptions.index(item)], code=code, link=link, dates=dates_save)
+                                    country_id=item_get_webs.country_id, profile_id=item_profile.id, description=descriptions[descriptions.index(item)], link=link, dates=dates_save)
                                 tenders_save.save()
 
         if len(emails_users) > 0:
