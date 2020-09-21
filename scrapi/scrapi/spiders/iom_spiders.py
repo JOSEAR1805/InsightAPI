@@ -42,7 +42,7 @@ class IomSpiders(scrapy.Spider):
             '//div[@class="view-content"]/table[1]/tbody/tr/td[8]/span/text()').getall()
 
         get_webs = Web.objects.all().filter(
-            url='https://procurement-notices.undp.org/')
+            url='https://www.iom.int/procurement-opportunities')
 
         for item_get_webs in get_webs:
             get_search_settins = SearchSettings.objects.all().filter(
@@ -78,7 +78,7 @@ class IomSpiders(scrapy.Spider):
                                 link = f"{links_webs[descriptions.index(item)]}"
 
                                 tenders_save = Tender(
-                                    country_id=item_get_webs.country_id, profile_id=item_profile.id, description=descriptions[descriptions.index(item)], code=titles[descriptions.index(item)], link=link, dates=dates_save)
+                                    country_id=item_get_webs.country_id, profile_id=item_profile.id, description=descriptions[descriptions.index(item)], code=titles[descriptions.index(item)], link=link, publication_date=dates_posteds[descriptions.index(item)], closing_date=dates_deadline[descriptions.index(item)])
                                 tenders_save.save()
 
         if len(emails_users) > 0:

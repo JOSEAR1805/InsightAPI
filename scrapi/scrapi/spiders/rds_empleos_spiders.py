@@ -85,7 +85,7 @@ class RdsEmpleosSpiders(scrapy.Spider):
                                 link = f"https://rds-empleos.hn/plazas/category/17/{links_webs[titles.index(item)]}"
 
                                 tenders_save = Tender(
-                                    country_id=item_get_webs.country_id, profile_id=item_profile.id, description=titles[titles.index(item)], link=link, place_of_execution=places[titles.index(item)].rstrip(), awarning_authority=companies[titles.index(item)], dates=dates_save)
+                                    country_id=item_get_webs.country_id, profile_id=item_profile.id, description=titles[titles.index(item)], link=link, place_of_execution=places[titles.index(item)].rstrip(), awarning_authority=companies[titles.index(item)], publication_date=split_date[0], closing_date=split_date[1])
                                 tenders_save.save()
 
         if len(emails_users) > 0:

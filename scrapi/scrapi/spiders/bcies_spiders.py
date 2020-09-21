@@ -76,7 +76,7 @@ class BciesSpiders(scrapy.Spider):
                                 link = f'{links_webs[titles.index(item)]}'
 
                                 tenders_save = Tender(
-                                    country_id=item_get_webs.country_id, profile_id=item_profile.id, description=titles[titles.index(item)], code=codes[titles.index(item)], link=link, place_of_execution=places[titles.index(item)].rstrip(), dates=dates_save)
+                                    country_id=item_get_webs.country_id, profile_id=item_profile.id, description=titles[titles.index(item)], code=codes[titles.index(item)], link=link, place_of_execution=places[titles.index(item)].rstrip(), publication_date=dates1, closing_date=dates2)
                                 tenders_save.save()
 
         if len(emails_users) > 0:
