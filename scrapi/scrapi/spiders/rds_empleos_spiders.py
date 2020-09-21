@@ -90,4 +90,4 @@ class RdsEmpleosSpiders(scrapy.Spider):
 
         if len(emails_users) > 0:
             mailer.send(to=emails_users,
-                        subject="Some subject121212", body="Some body1212121")
+                        subject="Nuevas licitaciones", body="El sistema ha registrado nuevas licitaciones")
