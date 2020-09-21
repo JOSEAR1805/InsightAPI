@@ -23,7 +23,7 @@ class UndpSpiders(scrapy.Spider):
         emails_users = []
 
         titles = response.xpath(
-            '//table[@class="standard cellborder"]//tr[@valign="top"]/td[7]/text()').getall()
+            '//table[@class="standard cellborder"]//tr[@valign="top"]/td[3]/text()').getall()
 
         descriptions = response.xpath(
             '//table[@class="standard cellborder"]//tr[@valign="top"]/td[4]/a/text()').getall()

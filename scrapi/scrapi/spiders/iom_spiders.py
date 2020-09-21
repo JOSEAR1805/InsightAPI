@@ -24,7 +24,7 @@ class IomSpiders(scrapy.Spider):
         emails_users = []
 
         titles = response.xpath(
-            '//div[@class="view-content"]/table[1]/tbody/tr/td[3]/text()').getall()
+            '//div[@class="view-content"]/table[1]/tbody/tr/td[1]/text()').getall()
 
         descriptions = response.xpath(
             '//div[@class="view-content"]/table[1]/tbody/tr/td[2]/a/text()').getall()
