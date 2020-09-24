@@ -82,7 +82,7 @@ class UndpSpiders(scrapy.Spider):
                                 link = f"https://procurement-notices.undp.org/{links_webs[descriptions.index(item)]}"
 
                                 tenders_save = Tender(
-                                    country_id=item_get_webs.country_id, profile_id=item_profile.id, description=descriptions[descriptions.index(item)], code=titles[descriptions.index(item)], link=link, place_of_execution=places[descriptions.index(item)].rstrip(), awarning_authority=companies[descriptions.index(item)], publication_date=dates_posteds[descriptions.index(item)], closing_date=dates_deadline[descriptions.index(item)])
+                                    user_id=item_search_settings.user_id, country_id=item_get_webs.country_id, profile_id=item_profile.id, description=descriptions[descriptions.index(item)], code=titles[descriptions.index(item)], link=link, place_of_execution=places[descriptions.index(item)].rstrip(), awarning_authority=companies[descriptions.index(item)], publication_date=dates_posteds[descriptions.index(item)], closing_date=dates_deadline[descriptions.index(item)])
                                 tenders_save.save()
 
         if len(emails_users) > 0:

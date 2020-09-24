@@ -73,7 +73,7 @@ class GlobalTendersSpiders(scrapy.Spider):
                                 link = f"{links_webs[descriptions.index(item)]}"
 
                                 tenders_save = Tender(
-                                    country_id=item_get_webs.country_id, profile_id=item_profile.id, description=descriptions[descriptions.index(item)], link=link, place_of_execution=places[descriptions.index(item)].rstrip(), closing_date=dates_save)
+                                    user_id=item_search_settings.user_id, country_id=item_get_webs.country_id, profile_id=item_profile.id, description=descriptions[descriptions.index(item)], link=link, place_of_execution=places[descriptions.index(item)].rstrip(), closing_date=dates_save)
                                 tenders_save.save()
 
         if len(emails_users) > 0:
