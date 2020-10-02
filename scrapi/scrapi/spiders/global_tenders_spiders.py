@@ -20,8 +20,8 @@ class GlobalTendersSpiders(scrapy.Spider):
 
     def parse(self, response):
 
-        mailer = MailSender(mailfrom="joseartigasdev@gmail.com", smtphost="smtp.gmail.com",
-                            smtpport=587, smtpuser="joseartigasdev@gmail.com", smtppass="developer123*")
+        mailer = MailSender(mailfrom="notificaciones@insightmarketingca.com", smtphost="smtp.insightmarketingca.com",
+                            smtpport=587, smtpuser="notificaciones@insightmarketingca.com", smtppass="Latam5454@")
         emails_users = []
 
         descriptions = response.xpath(
