@@ -5,8 +5,8 @@ from profiles.models import Profile
 from django.contrib.auth.models import User
 from webs.models import Web
 from search_settings.models import SearchSettings
-import datetime
-
+import time
+from datetime import date, datetime
 
 # Titulos = //ul[contains(@class, "listService")]//div[@class="listWrpService featured-wrap"]//h3/a/text()
 # Empresa = //ul[contains(@class, "listService")]//div[@class="listWrpService featured-wrap"]//p[not(contains(@class , "para"))]/text()
@@ -14,6 +14,10 @@ import datetime
 # Lugar = //ul[contains(@class, "listService")]//div[@class="listWrpService featured-wrap"]//ul[@class="featureInfo innerfeat"]/li[0]/text()
 # Fecha = //ul[contains(@class, "listService")]//div[@class="listWrpService featured-wrap"]//ul[@class="featureInfo innerfeat"]/li[1]/text()
 
+today = date.today()
+d1 = today.strftime("%b %dº, %Y")
+objDate = datetime.strptime(d1, '%b %dº, %Y')
+todayUnixDate = time.mktime(objDate.timetuple())
 
 class RdsEmpleosSpiders(scrapy.Spider):
     name = 'rds_empleados_spiders'
@@ -27,8 +31,8 @@ class RdsEmpleosSpiders(scrapy.Spider):
 
     def parse(self, response):
 
-        mailer = MailSender(mailfrom="notificaciones@insightmarketingca.com", smtphost="smtp.insightmarketingca.com",
-                            smtpport=587, smtpuser="notificaciones@insightmarketingca.com", smtppass="Latam5454@")
+        mailer = MailSender(mailfrom="insight@globaldigital-latam.com", smtphost="mail.globaldigital-latam.com",
+                            smtpport=587, smtpuser="insight@globaldigital-latam.com", smtppass="Latam5454@")
         emails_users = []
 
         titles = response.xpath(
@@ -78,15 +82,21 @@ class RdsEmpleosSpiders(scrapy.Spider):
                             if word_key_not_in:
                                 print('*************--- NOT SAVE ---*************')
                             else:
-                                print('*************--- SAVE ---*************')
-                                split_date = dates[titles.index(
-                                    item)].rstrip().split('-')
-                                dates_save = f"{split_date[0]} - {split_date[1]}"
                                 link = f"https://rds-empleos.hn/plazas/category/17/{links_webs[titles.index(item)]}"
 
-                                tenders_save = Tender(
-                                    user_id=item_search_settings.user_id, country_id=item_get_webs.country_id, profile_id=item_profile.id, description=titles[titles.index(item)], link=link, place_of_execution=places[titles.index(item)].rstrip(), awarning_authority=companies[titles.index(item)], publication_date=split_date[0], closing_date=split_date[1])
-                                tenders_save.save()
+                                split_date = dates[titles.index(item)].split('-')
+
+                                objDate = datetime.strptime(split_date[0].strip(), '%b %dº, %Y')
+                                tenderUnixDate = time.mktime(objDate.timetuple())
+
+                                if todayUnixDate == tenderUnixDate:
+                                    tender_counts = Tender.objects.filter(description=titles[titles.index(item)], publication_date=split_date[0].strip()).values()
+
+                                    if len(tender_counts) <= 0:
+                                        print('*************--- SAVE ---*************')
+                                        tenders_save = Tender(
+                                            user_id=item_search_settings.user_id, country_id=item_get_webs.country_id, profile_id=item_profile.id, description=titles[titles.index(item)], link=link, place_of_execution=places[titles.index(item)].rstrip(), awarning_authority=companies[titles.index(item)], publication_date=split_date[0].strip(), closing_date=split_date[1].strip())
+                                        tenders_save.save()
 
         if len(emails_users) > 0:
             mailer.send(to=emails_users,

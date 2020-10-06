@@ -5,7 +5,14 @@ from scrapy.mail import MailSender
 from django.contrib.auth.models import User
 from webs.models import Web
 from search_settings.models import SearchSettings
-import datetime
+
+import time
+from datetime import date, datetime
+
+today = date.today()
+d1 = today.strftime('%d/%m/%Y')
+objDate = datetime.strptime(d1, '%d/%m/%Y')
+todayUnixDate = time.mktime(objDate.timetuple())
 
 
 class BciesSpiders(scrapy.Spider):
@@ -20,8 +27,8 @@ class BciesSpiders(scrapy.Spider):
 
     def parse(self, response):
 
-        mailer = MailSender(mailfrom="notificaciones@insightmarketingca.com", smtphost="smtp.insightmarketingca.com",
-                            smtpport=587, smtpuser="notificaciones@insightmarketingca.com", smtppass="Latam5454@")
+        mailer = MailSender(mailfrom="insight@globaldigital-latam.com", smtphost="mail.globaldigital-latam.com",
+                            smtpport=587, smtpuser="insight@globaldigital-latam.com", smtppass="Latam5454@")
         emails_users = []
 
         codes = response.xpath(
@@ -71,13 +78,20 @@ class BciesSpiders(scrapy.Spider):
                             if word_key_not_in:
                                 print('*************--- NOT SAVE ---*************')
                             else:
-                                print('*************--- SAVE ---*************')
-                                dates_save = f'{dates1[titles.index(item)].rstrip()} - {dates2[titles.index(item)].rstrip()}'
                                 link = f'{links_webs[titles.index(item)]}'
 
-                                tenders_save = Tender(
-                                    user_id=item_search_settings.user_id, country_id=item_get_webs.country_id, profile_id=item_profile.id, description=titles[titles.index(item)], code=codes[titles.index(item)], link=link, place_of_execution=places[titles.index(item)].rstrip(), publication_date=dates1, closing_date=dates2)
-                                tenders_save.save()
+                                objDate = datetime.strptime(dates1[titles.index(item)].strip(), '%d/%m/%Y')
+                                tenderUnixDate = time.mktime(objDate.timetuple())
+
+                                if todayUnixDate == tenderUnixDate:
+                                    tender_counts = Tender.objects.filter(description=titles[titles.index(item)], publication_date=dates1[titles.index(item)].strip()).values()
+
+                                    if len(tender_counts) <= 0:
+                                        print('*************--- SAVE ---*************')
+                                        tenders_save = Tender(
+                                            user_id=item_search_settings.user_id, country_id=item_get_webs.country_id, profile_id=item_profile.id, description=titles[titles.index(item)], code=codes[titles.index(item)], link=link, place_of_execution=places[titles.index(item)].rstrip(), publication_date=dates1[titles.index(item)].strip(), closing_date=dates2[titles.index(item)].strip())
+                                        tenders_save.save()
+
 
         if len(emails_users) > 0:
             mailer.send(to=emails_users,

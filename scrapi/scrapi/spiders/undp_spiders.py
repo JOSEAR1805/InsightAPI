@@ -5,7 +5,13 @@ from profiles.models import Profile
 from django.contrib.auth.models import User
 from webs.models import Web
 from search_settings.models import SearchSettings
+import time
+from datetime import date, datetime
 
+today = date.today()
+d1 = today.strftime("%d-%b-%y")
+objDate = datetime.strptime(d1, '%d-%b-%y')
+todayUnixDate = time.mktime(objDate.timetuple())
 
 class UndpSpiders(scrapy.Spider):
     name = 'undp_spiders'
@@ -18,8 +24,8 @@ class UndpSpiders(scrapy.Spider):
     }
 
     def parse(self, response):
-        mailer = MailSender(mailfrom="notificaciones@insightmarketingca.com", smtphost="smtp.insightmarketingca.com",
-                            smtpport=587, smtpuser="notificaciones@insightmarketingca.com", smtppass="Latam5454@")
+        mailer = MailSender(mailfrom="insight@globaldigital-latam.com", smtphost="mail.globaldigital-latam.com",
+                            smtpport=587, smtpuser="insight@globaldigital-latam.com", smtppass="Latam5454@")
         emails_users = []
 
         titles = response.xpath(
@@ -69,21 +75,25 @@ class UndpSpiders(scrapy.Spider):
                             word_key_not_in = any([words_not_search in descriptions[descriptions.index(
                                 item)].upper() for words_not_search in words_not_searchs])
 
-                            print(words_not_searchs,
-                                  '*******---', word_key_not_in)
                             if word_key_not_in:
                                 print('*************--- NOT SAVE ---*************')
                             else:
-                                print('*************--- SAVE ---*************')
-                                print('--*************-')
-                                print('*' * 10)
-                                print('\n\n')
                                 dates_save = f"{dates_posteds[descriptions.index(item)]} - {dates_deadline[descriptions.index(item)]}"
                                 link = f"https://procurement-notices.undp.org/{links_webs[descriptions.index(item)]}"
 
-                                tenders_save = Tender(
-                                    user_id=item_search_settings.user_id, country_id=item_get_webs.country_id, profile_id=item_profile.id, description=descriptions[descriptions.index(item)], code=titles[descriptions.index(item)], link=link, place_of_execution=places[descriptions.index(item)].rstrip(), awarning_authority=companies[descriptions.index(item)], publication_date=dates_posteds[descriptions.index(item)], closing_date=dates_deadline[descriptions.index(item)])
-                                tenders_save.save()
+                                objDate = datetime.strptime(dates_posteds[descriptions.index(item)], '%d-%b-%y')
+                                tenderUnixDate = time.mktime(objDate.timetuple())
+
+                                if todayUnixDate == tenderUnixDate:
+                                    tender_counts = Tender.objects.filter(description=descriptions[descriptions.index(item)], publication_date=dates_posteds[descriptions.index(item)]).values()
+
+                                    if len(tender_counts) <= 0:
+                                        print('*************--- SAVE ---*************')
+                                        tenders_save = Tender(
+                                            user_id=item_search_settings.user_id, country_id=item_get_webs.country_id, profile_id=item_profile.id, description=descriptions[descriptions.index(item)], code=titles[descriptions.index(item)], link=link, place_of_execution=places[descriptions.index(item)].rstrip(), awarning_authority=companies[descriptions.index(item)], publication_date=dates_posteds[descriptions.index(item)], closing_date=dates_deadline[descriptions.index(item)])
+                                        tenders_save.save()
+
+
 
         if len(emails_users) > 0:
             mailer.send(to=emails_users,

@@ -12,7 +12,7 @@ class Tender(models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE, blank=True)
     profile = models.ForeignKey(Profile, on_delete=models.CASCADE, blank=True)
 
-    description = models.CharField(max_length=255, blank=True)
+    description = models.CharField(max_length=255, unique=True)
     code = models.CharField(max_length=255, blank=True)
     place_of_execution = models.CharField(max_length=255, blank=True)
     awarning_authority = models.CharField(max_length=255, blank=True)
