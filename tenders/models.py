@@ -8,11 +8,11 @@ from django.contrib.auth.models import User
 
 
 class Tender(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, blank=True)
-    country = models.ForeignKey(Country, on_delete=models.CASCADE, blank=True)
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE, blank=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE)
+    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
 
-    description = models.CharField(max_length=255, unique=True)
+    description = models.TextField()
     code = models.CharField(max_length=255, blank=True)
     place_of_execution = models.CharField(max_length=255, blank=True)
     awarning_authority = models.CharField(max_length=255, blank=True)

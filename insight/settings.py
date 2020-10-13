@@ -160,3 +160,9 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+EMAIL_HOST = 'c1841141.ferozo.com'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = 'insight@globaldigital-latam.com'
+EMAIL_HOST_PASSWORD = 'Latam5454@'
+EMAIL_USE_SSL = True
