@@ -1,19 +1,17 @@
 import scrapy
 from tenders.models import Tender
 from profiles.models import Profile
-from scrapy.mail import MailSender
 from django.contrib.auth.models import User
 from webs.models import Web
 from search_settings.models import SearchSettings
-
 import time
 from datetime import date, datetime
+from django.core.mail import send_mail
 
 today = date.today()
 d1 = today.strftime('%d/%m/%Y')
 objDate = datetime.strptime(d1, '%d/%m/%Y')
 todayUnixDate = time.mktime(objDate.timetuple())
-
 
 class BciesSpiders(scrapy.Spider):
     name = 'bcies_spiders'
@@ -26,42 +24,28 @@ class BciesSpiders(scrapy.Spider):
     }
 
     def parse(self, response):
-
-        mailer = MailSender(mailfrom="insight@globaldigital-latam.com", smtphost="mail.globaldigital-latam.com",
-                            smtpport=587, smtpuser="insight@globaldigital-latam.com", smtppass="Latam5454@")
         emails_users = []
 
-        codes = response.xpath(
-            '//table[@id="customtables"]//tbody/tr/td[1]/text()').getall()
+        codes = response.xpath('//table[@id="customtables"]//tbody/tr/td[1]/text()').getall()
 
-        titles = response.xpath(
-            '//table[@id="customtables"]//tbody/tr/td[2]/a/text()').getall()
+        titles = response.xpath('//table[@id="customtables"]//tbody/tr/td[2]/a/text()').getall()
 
-        links_webs = response.xpath(
-            '//table[@id="customtables"]//tbody/tr/td[2]/a/@href').getall()
+        links_webs = response.xpath('//table[@id="customtables"]//tbody/tr/td[2]/a/@href').getall()
 
-        places = response.xpath(
-            '//table[@id="customtables"]//tbody/tr/td[3]/text()').getall()
+        places = response.xpath('//table[@id="customtables"]//tbody/tr/td[3]/text()').getall()
 
-        dates1 = response.xpath(
-            '//table[@id="customtables"]//tbody/tr/td[4]/text()').getall()
+        dates1 = response.xpath('//table[@id="customtables"]//tbody/tr/td[4]/text()').getall()
 
-        dates2 = response.xpath(
-            '//table[@id="customtables"]//tbody/tr/td[5]/text()').getall()
+        dates2 = response.xpath('//table[@id="customtables"]//tbody/tr/td[5]/text()').getall()
 
-        get_webs = Web.objects.all().filter(
-            url='https://adquisiciones.bcie.org/avisos-de-adquisicion')
+        get_webs = Web.objects.all().filter(url='https://adquisiciones.bcie.org/avisos-de-adquisicion')
 
         for item_get_webs in get_webs:
-            get_search_settins = SearchSettings.objects.all().filter(
-                country_id=item_get_webs.country_id)
+            search_settings = SearchSettings.objects.all().filter(country_id=item_get_webs.country_id)
 
-            for item_search_settings in get_search_settins:
-                user_send_email = User.objects.get(
-                    id=item_search_settings.user_id)
-                emails_users.append(user_send_email.email)
-                profiles = Profile.objects.all().filter(
-                    id=item_search_settings.profile_id)
+            for item_search_settings in search_settings:
+                users = User.objects.get(id=item_search_settings.user_id)
+                profiles = Profile.objects.all().filter(id=item_search_settings.profile_id)
 
                 for item_profile in profiles:
                     for item in titles:
@@ -76,7 +60,7 @@ class BciesSpiders(scrapy.Spider):
                                 item)].upper() for words_not_search in words_not_searchs])
 
                             if word_key_not_in:
-                                print('*************--- NOT SAVE ---*************')
+                                print('***** NOT SAVE *****')
                             else:
                                 link = f'{links_webs[titles.index(item)]}'
 
@@ -84,15 +68,34 @@ class BciesSpiders(scrapy.Spider):
                                 tenderUnixDate = time.mktime(objDate.timetuple())
 
                                 if todayUnixDate == tenderUnixDate:
-                                    tender_counts = Tender.objects.filter(description=titles[titles.index(item)], publication_date=dates1[titles.index(item)].strip()).values()
+                                    tender_counts = Tender.objects.filter(
+                                        description=titles[titles.index(item)], 
+                                        publication_date=dates1[titles.index(item)].strip()
+                                    ).values()
 
                                     if len(tender_counts) <= 0:
-                                        print('*************--- SAVE ---*************')
+                                        emails_users.append(users.email)
                                         tenders_save = Tender(
-                                            user_id=item_search_settings.user_id, country_id=item_get_webs.country_id, profile_id=item_profile.id, description=titles[titles.index(item)], code=codes[titles.index(item)], link=link, place_of_execution=places[titles.index(item)].rstrip(), publication_date=dates1[titles.index(item)].strip(), closing_date=dates2[titles.index(item)].strip())
+                                            user_id=item_search_settings.user_id, 
+                                            country_id=item_get_webs.country_id, 
+                                            profile_id=item_profile.id, 
+                                            description=titles[titles.index(item)], 
+                                            code=codes[titles.index(item)], 
+                                            link=link, 
+                                            place_of_execution=places[titles.index(item)].rstrip(), 
+                                            publication_date=dates1[titles.index(item)].strip(), 
+                                            closing_date=dates2[titles.index(item)].strip()
+                                        )
                                         tenders_save.save()
+                                        print('***** SAVE *****')
 
 
         if len(emails_users) > 0:
-            mailer.send(to=emails_users,
-                        subject="Nuevas licitaciones", body="El sistema ha registrado nuevas licitaciones")
+            emails_users = set(emails_users); #eliminar los correos duplicados
+            send_mail(
+                'Nueva Licitaciones en Insight Intranet',
+                'El sistema ha registrado nuevas licitaciones de la página https://adquisiciones.bcie.org/avisos-de-adquisicion',
+                'insight@globaldigital-latam.com',
+                emails_users,
+            )
+            print('***** SEND EMAIL *****')

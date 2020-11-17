@@ -6,13 +6,14 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status, authentication
 from django.http import HttpResponse
+from django.db.models.functions import Lower
 
 
 # Create your views here.
 
 
 class TenderViewSet(viewsets.ModelViewSet):
-    queryset = Tender.objects.all()
+    queryset = Tender.objects.all().order_by(Lower('created').desc())
     serializer_class = TenderSerializer
    
     @action(methods=['get'], detail=False, url_path='tender-users', url_name='tender-users')

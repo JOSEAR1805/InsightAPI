@@ -32,7 +32,7 @@ def send_notification(sender, **kwargs):
       'Nuevo Url Agregada en Insight Intranet',
       f"Por favor configurar la siguiente Url {item.url}. Recuerde que luego de configurar se debe cambiar el estado de la misma.",
       'insight@globaldigital-latam.com',
-      ['jgam310@gmail.com'],
+      ['leonardo@apreciasoft.com', 'jgam310@hotmail.com'],
     )
 
     print('***** SEND EMAIL *****')

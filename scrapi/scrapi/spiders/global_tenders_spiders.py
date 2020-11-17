@@ -1,13 +1,12 @@
 import scrapy
 from tenders.models import Tender
-from scrapy.mail import MailSender
 from profiles.models import Profile
 from webs.models import Web
 from django.contrib.auth.models import User
 from search_settings.models import SearchSettings
-
 import time
 from datetime import date, datetime
+from django.core.mail import send_mail
 
 today = date.today()
 d1 = today.strftime("%d %B %Y")
@@ -25,39 +24,26 @@ class GlobalTendersSpiders(scrapy.Spider):
     }
 
     def parse(self, response):
-
-        mailer = MailSender(mailfrom="insight@globaldigital-latam.com", smtphost="mail.globaldigital-latam.com",
-                            smtpport=587, smtpuser="insight@globaldigital-latam.com", smtppass="Latam5454@")
         emails_users = []
 
-        descriptions = response.xpath(
-            '//div[@class="classWithPad"]/div[4]/div/table//tr/td[1]/table/tr[3]/td/table/tr/td[2]/text()').getall()
+        descriptions = response.xpath('//div[@class="classWithPad"]/div[4]/div/table//tr/td[1]/table/tr[3]/td/table/tr/td[2]/text()').getall()
 
-        titles = response.xpath(
-            '//div[@class="classWithPad"]/div[4]/div/table//tr/td[1]/table/tr[1]/td/table/tr/td[2]/text()').getall()
+        titles = response.xpath('//div[@class="classWithPad"]/div[4]/div/table//tr/td[1]/table/tr[1]/td/table/tr/td[2]/text()').getall()
 
-        links_webs = response.xpath(
-            '//div[@class="classWithPad"]/div[4]/div/table//tr/td[1]/table/tr[5]/td/table/tr/td[2]/a/@href').getall()
+        links_webs = response.xpath('//div[@class="classWithPad"]/div[4]/div/table//tr/td[1]/table/tr[5]/td/table/tr/td[2]/a/@href').getall()
 
-        places = response.xpath(
-            '//div[@class="classWithPad"]/div[4]/div/table//tr/td[1]/table/tr/td/table/tr/td[4]/text()').getall()
+        places = response.xpath('//div[@class="classWithPad"]/div[4]/div/table//tr/td[1]/table/tr/td/table/tr/td[4]/text()').getall()
 
-        dates_webs = response.xpath(
-            '//div[@class="classWithPad"]/div[4]/div/table//tr/td[1]/table/tr[4]/td/table/tr/td[2]/text()').getall()
+        dates_webs = response.xpath('//div[@class="classWithPad"]/div[4]/div/table//tr/td[1]/table/tr[4]/td/table/tr/td[2]/text()').getall()
 
-        get_webs = Web.objects.all().filter(
-            url='https://www.globaltenders.com/government-tenders-latin-america.php')
+        get_webs = Web.objects.all().filter(url='https://www.globaltenders.com/government-tenders-latin-america.php')
 
         for item_get_webs in get_webs:
-            get_search_settins = SearchSettings.objects.all().filter(
-                country_id=item_get_webs.country_id)
+            search_settings = SearchSettings.objects.all().filter(country_id=item_get_webs.country_id)
 
-            for item_search_settings in get_search_settins:
-                user_send_email = User.objects.get(
-                    id=item_search_settings.user_id)
-                emails_users.append(user_send_email.email)
-                profiles = Profile.objects.all().filter(
-                    id=item_search_settings.profile_id)
+            for item_search_settings in search_settings:
+                users = User.objects.get(id=item_search_settings.user_id)
+                profiles = Profile.objects.all().filter(id=item_search_settings.profile_id)
 
                 for item_profile in profiles:
                     for item in descriptions:
@@ -72,7 +58,7 @@ class GlobalTendersSpiders(scrapy.Spider):
                                 item)].upper() for words_not_search in words_not_searchs])
 
                             if word_key_not_in:
-                                print('*************--- NOT SAVE ---*************')
+                                print('***** NOT SAVE *****')
                             else:
                                 dates_save = f"{dates_webs[descriptions.index(item)].rstrip()}"
                                 link = f"{links_webs[descriptions.index(item)]}"
@@ -84,12 +70,20 @@ class GlobalTendersSpiders(scrapy.Spider):
                                     tender_counts = Tender.objects.filter(description=descriptions[descriptions.index(item)]).values()
 
                                     if len(tender_counts) <= 0:
-                                        print('*************--- SAVE ---*************')
+                                        emails_users.append(users.email)
                                         tenders_save = Tender(
                                             user_id=item_search_settings.user_id, country_id=item_get_webs.country_id, profile_id=item_profile.id, description=descriptions[descriptions.index(item)], link=link, place_of_execution=places[descriptions.index(item)].rstrip(), closing_date=dates_save)
                                         tenders_save.save()
+                                        print('***** SAVE *****')
+
 
 
         if len(emails_users) > 0:
-            mailer.send(to=emails_users,
-                        subject="Nuevas licitaciones", body="El sistema ha registrado nuevas licitaciones")
+            emails_users = set(emails_users); #eliminar los correos duplicados
+            send_mail(
+                'Nueva Licitaciones en Insight Intranet',
+                'El sistema ha registrado nuevas licitaciones de la página https://www.globaltenders.com/government-tenders-latin-america.php',
+                'insight@globaldigital-latam.com',
+                emails_users,
+            )
+            print('***** SEND EMAIL *****')
