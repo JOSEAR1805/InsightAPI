@@ -6,12 +6,11 @@ from rest_framework import serializers
 
 class Country(models.Model):
   name = models.CharField(max_length=255)
-  created = models.DateTimeField(auto_now_add=True)
-  modified = models.DateTimeField(auto_now=True)
+  code = models.CharField(max_length=10)
 
 
 class CountrySerializer(serializers.HyperlinkedModelSerializer):
 
   class Meta:
     model = Country
-    fields = ['id', 'name']
+    fields = ['id', 'name', 'code']
