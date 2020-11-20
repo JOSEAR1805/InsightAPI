@@ -3,6 +3,7 @@ from django.contrib.auth.models import User
 from rest_framework import routers, serializers, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from .models import Privilege, PrivilegeSerializer
 
 
 class AuthUserViewSet(viewsets.ViewSet):
@@ -17,3 +18,7 @@ class AuthUserViewSet(viewsets.ViewSet):
     print(user_auth)
 
     return Response(user_auth)
+
+class PrivilegeViewSet(viewsets.ModelViewSet):
+  queryset = Privilege.objects.all()
+  serializer_class = PrivilegeSerializer

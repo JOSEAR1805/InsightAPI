@@ -26,7 +26,8 @@ from search_settings.views import SearchSettingViewSet
 from search_settings.models import SearchSettings
 from tenders.views import TenderViewSet
 from tenders.models import Tender
-from auth_user.views import AuthUserViewSet
+from auth_user.models import PrivilegeSerializer, Privilege
+from auth_user.views import AuthUserViewSet, PrivilegeViewSet
 
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -43,11 +44,14 @@ from django.http import JsonResponse
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
+
     class Meta:
         model = User
         fields = ['id', 'url', 'username', 'email',
                   'is_staff', 'first_name', 'last_name', 'password']
-        extra_kwargs = {'password': {'write_only': True}}
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
 
         def create(self, validated_data):
             password = validated_data.pop('password')
@@ -62,6 +66,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     queryset_tenders = Tender.objects.all()
+    queryset_privilege = Privilege.objects.all()
     serializer_class = UserSerializer
 
     """
@@ -91,12 +96,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
         if user_auth.password == password:
             token, created = Token.objects.get_or_create(user=user_auth)
-
-        # if user.check_password(password):
-
-        #     # Success Code
-        # else:
-        #     # Error Code
+            privilege = self.queryset_privilege.filter(user_id=user_auth.id).get()
 
             user_json = {
                 'id': user_auth.id,
@@ -104,6 +104,10 @@ class UserViewSet(viewsets.ModelViewSet):
                 'last_name': user_auth.last_name,
                 'first_name': user_auth.first_name,
                 'token': token.key,
+                'privilege_tenders': privilege.tenders,
+                'privilege_webs': privilege.webs,
+                'privilege_profiles': privilege.profiles,
+                'privilege_users': privilege.users,
             }
             return Response(user_json)
         else:
@@ -118,6 +122,7 @@ router.register(r'webs', WebViewSet)
 router.register(r'profiles', ProfileViewSet)
 router.register(r'search_settings', SearchSettingViewSet)
 router.register(r'tenders', TenderViewSet)
+router.register(r'privileges', PrivilegeViewSet)
 
 
 urlpatterns = [
