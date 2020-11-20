@@ -22,3 +22,17 @@ class AuthUserViewSet(viewsets.ViewSet):
 class PrivilegeViewSet(viewsets.ModelViewSet):
   queryset = Privilege.objects.all()
   serializer_class = PrivilegeSerializer
+
+  @action(methods=['get'], detail=False, url_path='privilege-user/(?P<user_id>\d+)', url_name='privilege-user')
+  def privilegeUser(self, request, user_id):
+    privilege = self.queryset.get(user=user_id)
+
+    if privilege.id:
+      data_json = {
+        'id': privilege.id,
+        'tenders': privilege.tenders,
+        'webs': privilege.webs,
+        'profiles': privilege.profiles,
+        'users': privilege.users,
+      }
+      return Response(data_json)
