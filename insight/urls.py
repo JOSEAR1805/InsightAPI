@@ -108,6 +108,7 @@ class UserViewSet(viewsets.ModelViewSet):
                 'privilege_webs': privilege.webs,
                 'privilege_profiles': privilege.profiles,
                 'privilege_users': privilege.users,
+                'image': privilege.image,
             }
             return Response(user_json)
         else:

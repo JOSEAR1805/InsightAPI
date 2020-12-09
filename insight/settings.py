@@ -108,8 +108,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'db_insight',
-        'USER': 'developer',
-        'PASSWORD': 'Secret',
+        'USER': 'root',
+        'PASSWORD': 'Secret2020',
         'HOST': '127.0.0.1',
     }
 }

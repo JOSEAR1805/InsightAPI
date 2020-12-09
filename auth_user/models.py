@@ -12,10 +12,11 @@ class Privilege(models.Model):
     webs = models.BooleanField(default=False)
     profiles = models.BooleanField(default=False)
     users = models.BooleanField(default=False)
+    image = models.TextField(null=True, blank=True)
 
 
 class PrivilegeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Privilege
-        fields = ['user', 'tenders', 'webs', 'profiles', 'users']
+        fields = ['user', 'tenders', 'webs', 'profiles', 'users', 'image']

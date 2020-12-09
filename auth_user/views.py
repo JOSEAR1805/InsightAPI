@@ -34,5 +34,6 @@ class PrivilegeViewSet(viewsets.ModelViewSet):
         'webs': privilege.webs,
         'profiles': privilege.profiles,
         'users': privilege.users,
+        'image': privilege.image,
       }
       return Response(data_json)
