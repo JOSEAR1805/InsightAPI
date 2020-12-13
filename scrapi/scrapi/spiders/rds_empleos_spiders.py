@@ -49,46 +49,47 @@ class RdsEmpleosSpiders(scrapy.Spider):
 
                 for item_profile in profiles:
                     for item in titles:
-                        words_searchs = item_profile.search_parameters.upper().strip().split(',')
-                        words_not_searchs = item_profile.discard_parameters.upper().strip().split(',')
+                        # words_searchs = item_profile.search_parameters.upper().strip().split(',')
+                        # words_not_searchs = item_profile.discard_parameters.upper().strip().split(',')
 
-                        word_key_in = any([words_search in titles[titles.index(item)].upper() for words_search in words_searchs])
+                        # word_key_in = any([words_search in titles[titles.index(item)].upper() for words_search in words_searchs])
 
-                        if word_key_in:
-                            word_key_not_in = any([words_not_search in titles[titles.index(
-                                item)].upper() for words_not_search in words_not_searchs])
+                        # if word_key_in:
+                        #     word_key_not_in = any([words_not_search in titles[titles.index(
+                        #         item)].upper() for words_not_search in words_not_searchs])
 
-                            if word_key_not_in:
-                                print('***** NOT SAVE *****')
-                            else:
-                                link = f"https://rds-empleos.hn/plazas/category/17/{links_webs[titles.index(item)]}"
+                        #     if word_key_not_in:
+                        #         print('***** NOT SAVE *****')
+                        #     else:
+                        link = f"https://rds-empleos.hn/plazas/category/17/{links_webs[titles.index(item)]}"
 
-                                split_date = dates[titles.index(item)].split('-')
+                        split_date = dates[titles.index(item)].split('-')
 
-                                objDate = datetime.strptime(split_date[0].strip(), '%b %dº, %Y')
-                                tenderUnixDate = time.mktime(objDate.timetuple())
+                        objDate = datetime.strptime(split_date[0].strip(), '%b %dº, %Y')
+                        tenderUnixDate = time.mktime(objDate.timetuple())
 
-                                if todayUnixDate == tenderUnixDate:
-                                    tender_counts = Tender.objects.filter(
-                                        description=titles[titles.index(item)], 
-                                        publication_date=split_date[0].strip()
-                                    ).values()
+                        if todayUnixDate == tenderUnixDate:
+                            tender_counts = Tender.objects.filter(
+                                description=titles[titles.index(item)], 
+                                publication_date=split_date[0].strip()
+                            ).values()
 
-                                    if len(tender_counts) <= 0:
-                                        emails_users.append(users.email)
-                                        tenders_save = Tender(
-                                            user_id=item_search_settings.user_id, 
-                                            country_id=item_get_webs.country_id, 
-                                            profile_id=item_profile.id, 
-                                            description=titles[titles.index(item)], 
-                                            link=link, 
-                                            place_of_execution=places[titles.index(item)].rstrip(), 
-                                            awarning_authority=companies[titles.index(item)], 
-                                            publication_date=split_date[0].strip(), 
-                                            closing_date=split_date[1].strip()
-                                        )
-                                        tenders_save.save()
-                                        print('***** SAVE *****')
+                            if len(tender_counts) <= 0:
+                                emails_users.append(users.email)
+                                tenders_save = Tender(
+                                    user_id=item_search_settings.user_id, 
+                                    country_id=item_get_webs.country_id, 
+                                    profile_id=item_profile.id, 
+                                    description=titles[titles.index(item)], 
+                                    link=link, 
+                                    place_of_execution=places[titles.index(item)].rstrip(), 
+                                    awarning_authority=companies[titles.index(item)], 
+                                    publication_date=split_date[0].strip(), 
+                                    closing_date=split_date[1].strip(),
+                                    status="Nuevo"
+                                )
+                                tenders_save.save()
+                                print('***** SAVE *****')
 
         if len(emails_users) > 0:
             emails_users = set(emails_users); #eliminar los correos duplicados

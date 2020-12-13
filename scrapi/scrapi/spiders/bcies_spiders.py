@@ -49,45 +49,46 @@ class BciesSpiders(scrapy.Spider):
 
                 for item_profile in profiles:
                     for item in titles:
-                        words_searchs = item_profile.search_parameters.upper().strip().split(',')
-                        words_not_searchs = item_profile.discard_parameters.upper().strip().split(',')
+                        # words_searchs = item_profile.search_parameters.upper().strip().split(',')
+                        # words_not_searchs = item_profile.discard_parameters.upper().strip().split(',')
 
-                        word_key_in = any([words_search in titles[titles.index(
-                            item)].upper() for words_search in words_searchs])
+                        # word_key_in = any([words_search in titles[titles.index(
+                        #     item)].upper() for words_search in words_searchs])
 
-                        if word_key_in:
-                            word_key_not_in = any([words_not_search in titles[titles.index(
-                                item)].upper() for words_not_search in words_not_searchs])
+                        # if word_key_in:
+                        #     word_key_not_in = any([words_not_search in titles[titles.index(
+                        #         item)].upper() for words_not_search in words_not_searchs])
 
-                            if word_key_not_in:
-                                print('***** NOT SAVE *****')
-                            else:
-                                link = f'{links_webs[titles.index(item)]}'
+                        #     if word_key_not_in:
+                        #         print('***** NOT SAVE *****')
+                        #     else:
+                        link = f'{links_webs[titles.index(item)]}'
 
-                                objDate = datetime.strptime(dates1[titles.index(item)].strip(), '%d/%m/%Y')
-                                tenderUnixDate = time.mktime(objDate.timetuple())
+                        objDate = datetime.strptime(dates1[titles.index(item)].strip(), '%d/%m/%Y')
+                        tenderUnixDate = time.mktime(objDate.timetuple())
 
-                                if todayUnixDate == tenderUnixDate:
-                                    tender_counts = Tender.objects.filter(
-                                        description=titles[titles.index(item)], 
-                                        publication_date=dates1[titles.index(item)].strip()
-                                    ).values()
+                        if todayUnixDate == tenderUnixDate:
+                            tender_counts = Tender.objects.filter(
+                                description=titles[titles.index(item)], 
+                                publication_date=dates1[titles.index(item)].strip()
+                            ).values()
 
-                                    if len(tender_counts) <= 0:
-                                        emails_users.append(users.email)
-                                        tenders_save = Tender(
-                                            user_id=item_search_settings.user_id, 
-                                            country_id=item_get_webs.country_id, 
-                                            profile_id=item_profile.id, 
-                                            description=titles[titles.index(item)], 
-                                            code=codes[titles.index(item)], 
-                                            link=link, 
-                                            place_of_execution=places[titles.index(item)].rstrip(), 
-                                            publication_date=dates1[titles.index(item)].strip(), 
-                                            closing_date=dates2[titles.index(item)].strip()
-                                        )
-                                        tenders_save.save()
-                                        print('***** SAVE *****')
+                            if len(tender_counts) <= 0:
+                                emails_users.append(users.email)
+                                tenders_save = Tender(
+                                    user_id=item_search_settings.user_id, 
+                                    country_id=item_get_webs.country_id, 
+                                    profile_id=item_profile.id, 
+                                    description=titles[titles.index(item)], 
+                                    code=codes[titles.index(item)], 
+                                    link=link, 
+                                    place_of_execution=places[titles.index(item)].rstrip(), 
+                                    publication_date=dates1[titles.index(item)].strip(), 
+                                    closing_date=dates2[titles.index(item)].strip(),
+                                    status="Nuevo"
+                                )
+                                tenders_save.save()
+                                print('***** SAVE *****')
 
 
         if len(emails_users) > 0:
