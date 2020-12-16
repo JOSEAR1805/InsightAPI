@@ -7,8 +7,8 @@ from rest_framework import serializers
 class Profile(models.Model):
   name = models.CharField(max_length=255)
   description = models.CharField(max_length=255)
-  search_parameters = models.TextField()
-  discard_parameters = models.TextField()
+  search_parameters = models.TextField(blank=True)
+  discard_parameters = models.TextField(blank=True)
   created = models.DateTimeField(auto_now_add=True)
   modified = models.DateTimeField(auto_now=True)
 

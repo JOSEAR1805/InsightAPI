@@ -26,6 +26,8 @@ class Tender(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
 
+    status = models.CharField(max_length=100, blank=True)
+
 
 class TenderSerializer(serializers.ModelSerializer):
 
