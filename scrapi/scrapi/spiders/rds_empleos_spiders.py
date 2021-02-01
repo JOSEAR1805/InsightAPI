@@ -3,6 +3,7 @@ from tenders.models import Tender
 from profiles.models import Profile
 from django.contrib.auth.models import User
 from webs.models import Web
+from auth_user.models import Privilege
 from search_settings.models import SearchSettings
 import time
 from datetime import date, datetime
@@ -41,58 +42,57 @@ class RdsEmpleosSpiders(scrapy.Spider):
         get_webs = Web.objects.all().filter(url='https://rds-empleos.hn/plazas/category/17')
 
         for item_get_webs in get_webs:
-            search_settings = SearchSettings.objects.all().filter(country_id=item_get_webs.country_id)
 
-            for item_search_settings in search_settings:
-                users = User.objects.get(id=item_search_settings.user_id)
-                profiles = Profile.objects.all().filter(id=item_search_settings.profile_id)
+            for item in titles:
 
-                for item_profile in profiles:
-                    for item in titles:
-                        words_searchs = item_profile.search_parameters.upper().strip().split(',')
-                        words_not_searchs = item_profile.discard_parameters.upper().strip().split(',')
+                words_searchs = item_get_webs.search_parameters.upper().strip().split(',')
 
-                        word_key_in = any([words_search in titles[titles.index(item)].upper() for words_search in words_searchs])
+                word_key_in = any([words_search in titles[titles.index(item)].upper() for words_search in words_searchs])
 
-                        if word_key_in:
-                            word_key_not_in = any([words_not_search in titles[titles.index(
-                                item)].upper() for words_not_search in words_not_searchs])
+                if word_key_in:
+                            
+                    link = f"https://rds-empleos.hn/plazas/category/17/{links_webs[titles.index(item)]}"
 
-                            if word_key_not_in:
-                                print('***** NOT SAVE *****')
-                            else:
-                                link = f"https://rds-empleos.hn/plazas/category/17/{links_webs[titles.index(item)]}"
+                    split_date = dates[titles.index(item)].split('-')
 
-                                split_date = dates[titles.index(item)].split('-')
+                    objDate = datetime.strptime(split_date[0].strip(), "%b %dº, %Y")
+                    tenderUnixDate = time.mktime(objDate.timetuple())
 
-                                objDate = datetime.strptime(split_date[0].strip(), '%b %dº, %Y')
-                                tenderUnixDate = time.mktime(objDate.timetuple())
+                    if todayUnixDate == tenderUnixDate:
+                        tender_counts = Tender.objects.filter(
+                            description=titles[titles.index(item)], 
+                            publication_date=split_date[0].strip()
+                        ).values()
 
-                                if todayUnixDate == tenderUnixDate:
-                                    tender_counts = Tender.objects.filter(
-                                        description=titles[titles.index(item)], 
-                                        publication_date=split_date[0].strip()
-                                    ).values()
+                        if len(tender_counts) <= 0:
+                            tenders_save = Tender(
+                                country_id=item_get_webs.country_id, 
+                                description=titles[titles.index(item)], 
+                                link=link, 
+                                place_of_execution=places[titles.index(item)].rstrip(), 
+                                awarning_authority=companies[titles.index(item)], 
+                                publication_date=split_date[0].strip(), 
+                                closing_date=split_date[1].strip(),
+                                status="Nuevo"
+                            )
+                            tenders_save.save()
+                            print('***** SAVE *****')
 
-                                    if len(tender_counts) <= 0:
-                                        emails_users.append(users.email)
-                                        tenders_save = Tender(
-                                            user_id=item_search_settings.user_id, 
-                                            country_id=item_get_webs.country_id, 
-                                            profile_id=item_profile.id, 
-                                            description=titles[titles.index(item)], 
-                                            link=link, 
-                                            place_of_execution=places[titles.index(item)].rstrip(), 
-                                            awarning_authority=companies[titles.index(item)], 
-                                            publication_date=split_date[0].strip(), 
-                                            closing_date=split_date[1].strip(),
-                                            status="Nuevo"
-                                        )
-                                        tenders_save.save()
-                                        print('***** SAVE *****')
+                            # buscar las direcciones de correo a enviar el email
+                            userPrivileges = Privilege.objects.all()
+                            for userPrivilege in userPrivileges:
+                                countries_ids = userPrivilege.countries_ids.upper().strip().split(',')
+                                if len(countries_ids) > 0:
+                                    for country_id in countries_ids:
+                                        if str(item_get_webs.country_id) == country_id.strip():
+                                            users = User.objects.all().filter(id=userPrivilege.user_id)
+                                            for user in users:
+                                                emails_users.append(user.email)
 
         if len(emails_users) > 0:
             emails_users = set(emails_users); #eliminar los correos duplicados
+            print(emails_users)
+
             send_mail(
                 'Nueva Licitaciones en Insight Intranet',
                 'El sistema ha registrado nuevas licitaciones de la página https://rds-empleos.hn/plazas/category/17',

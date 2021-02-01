@@ -8,9 +8,9 @@ from django.contrib.auth.models import User
 
 
 class Tender(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # user = models.ForeignKey(User, on_delete=models.CASCADE)
     country = models.ForeignKey(Country, on_delete=models.CASCADE)
-    profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    # profile = models.ForeignKey(Profile, on_delete=models.CASCADE)
 
     description = models.TextField()
     code = models.CharField(max_length=255, blank=True)
@@ -21,7 +21,7 @@ class Tender(models.Model):
 
     publication_date = models.CharField(max_length=255, blank=True)
     closing_date = models.CharField(max_length=255, blank=True)
-    dates = models.CharField(max_length=255, blank=True)
+    # dates = models.CharField(max_length=255, blank=True)
 
     created = models.DateTimeField(auto_now_add=True)
     modified = models.DateTimeField(auto_now=True)
@@ -33,5 +33,5 @@ class TenderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tender
-        fields = ['id', 'user', 'country', 'profile', 'description', 'code', 'place_of_execution',
-                  'awarning_authority', 'link', 'tender_viewed', 'publication_date', 'closing_date', 'dates']
+        fields = ['id', 'country', 'description', 'code', 'place_of_execution',
+                  'awarning_authority', 'link', 'tender_viewed', 'publication_date', 'closing_date']

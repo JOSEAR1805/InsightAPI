@@ -21,7 +21,7 @@ from django.core import serializers as serializers_django
 
 from countries.views import CountryViewSet
 from webs.views import WebViewSet
-from profiles.views import ProfileViewSet
+from profiles.views import ProfileViewSet, Profile
 from search_settings.views import SearchSettingViewSet
 from search_settings.models import SearchSettings
 from tenders.views import TenderViewSet
@@ -67,6 +67,7 @@ class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     queryset_tenders = Tender.objects.all()
     queryset_privilege = Privilege.objects.all()
+    queryset_profile = Profile.objects.all()
     serializer_class = UserSerializer
 
     """
@@ -83,8 +84,34 @@ class UserViewSet(viewsets.ModelViewSet):
                 search_settings = self.queryset_tenders.filter().values()
                 return JsonResponse({"tenders": list(search_settings)})
             else:
-                search_settings = self.queryset_tenders.filter(
-                    user=user_auth.id).values()
+                search_settings = []
+                privilege = self.queryset_privilege.filter(user_id=user_auth.id).get()
+                profile = Profile.objects.all().filter(id=privilege.profile_id).get()
+                countries_ids = privilege.countries_ids.upper().strip().split(',')
+
+                for country_id in countries_ids:
+                    results = Tender.objects.all().filter(country_id=country_id).values()
+                    if len(results) > 0:
+                        for item in results:
+                            aux_description = '' #creo variable auxiliar para la descripcion
+                            for key, value in item.items(): #saco la descripcion de este item
+                                if (key == 'description'):
+                                    aux_description = value.upper()
+
+                            words_searchs = profile.search_parameters.upper().strip().split(',')
+                            words_not_searchs = profile.discard_parameters.upper().strip().split(',')
+
+                            if (aux_description != ''): #chequeo que exista una description
+                                word_key_in = any([words_search in aux_description for words_search in words_searchs])
+
+                                if word_key_in:
+                                    word_key_not_in = any([words_not_search in aux_description for words_not_search in words_not_searchs])
+
+                                    if word_key_not_in:
+                                        print('***** NOT SHOW *****')
+                                    else:
+                                        search_settings.append(item)
+
                 return JsonResponse({"tenders": list(search_settings)})
 
     @action(methods=['post'], detail=False, url_path='login', url_name='login')

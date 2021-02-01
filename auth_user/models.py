@@ -8,6 +8,8 @@ from rest_framework import serializers
 
 class Privilege(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='privilege')
+    profile_id = models.CharField(max_length=255, blank=True)
+    countries_ids = models.CharField(max_length=255, blank=True)
     tenders = models.BooleanField(default=True)
     webs = models.BooleanField(default=False)
     profiles = models.BooleanField(default=False)
@@ -19,4 +21,4 @@ class PrivilegeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Privilege
-        fields = ['user', 'tenders', 'webs', 'profiles', 'users', 'image']
+        fields = ['user', 'profile_id', 'countries_ids', 'tenders', 'webs', 'profiles', 'users', 'image']

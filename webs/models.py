@@ -10,7 +10,7 @@ class Web(models.Model):
   country = models.ForeignKey(Country, on_delete=models.CASCADE)
   name = models.CharField(max_length=255)
   url = models.CharField(max_length=255)
-  comments = models.CharField(max_length=255)
+  search_parameters = models.TextField(blank=True)
   status = models.IntegerField(default=0)
   created = models.DateTimeField(auto_now_add=True)
   modified = models.DateTimeField(auto_now=True)
@@ -21,7 +21,7 @@ class WebSerializer(serializers.ModelSerializer):
 
   class Meta:
     model = Web
-    fields = ['id', 'country', 'name', 'url', 'status', 'comments']
+    fields = ['id', 'country', 'name', 'url', 'status', 'search_parameters']
 
 
 def send_notification(sender, **kwargs):

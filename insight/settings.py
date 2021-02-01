@@ -107,7 +107,7 @@ WSGI_APPLICATION = 'insight.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'db_insight',
+        'NAME': 'db_insight_new',
         'USER': 'root',
         'PASSWORD': 'Secret2020',
         'HOST': '127.0.0.1',
